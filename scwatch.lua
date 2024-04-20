@@ -17,8 +17,9 @@ packets         = require('packets')
 
 local mode      = "all" --off, all, list
 local lists     = {}
-lists["watch"]  = T {}
-lists["ignore"] = T {}
+lists["watch"]  = T{}
+lists["ignore"] = T{}
+lists["party"] = T{}
 
 settings        = {}
 settings.sound  = "level_up.wav";
@@ -30,10 +31,10 @@ function is_in_party(id)
 		if (type(v) == "table") then
 			if (v.mob) then
 				if id == v.mob.id then
-					--if the name is not on the list OR the name is on the ignore list return false
+					lists["party"][v.mob.id] = v.name
 					--this kinda overloads the function to do two things
-					--need to check for both lists being nil
 					if (mode == "list" and lists["watch"] and not (lists["watch"]:contains(v.name:lower()))) or (lists["ignore"] and lists["ignore"]:contains(v.name)) then
+						--if the name is not on the list OR the name is on the ignore list return false
 						return false
 					end
 
@@ -102,7 +103,7 @@ windower.register_event('incoming chunk', function(id, data)
 		--checks to ignore players not in your party or alliance
 		if p.category == 3 and is_in_party(p.actor_id) then
 			--need to add checks to ignore weapon bash
-			windower.add_to_chat(207, "Weaponskill FINISH")
+			windower.add_to_chat(207, lists["party"][p.actor_id] .. " Weaponskill FINISH")
 			windower.play_sound(windower.addon_path .. 'sounds/' .. settings.sound)
 		end
 	end
