@@ -15,6 +15,7 @@ res = require('resources')
 packets = require('packets')
 --config = require('config')
 
+local mode = "all"
 local watched_players = T{}
 
 settings = {}
@@ -38,6 +39,10 @@ end
 
 windower.register_event('incoming chunk',function(id,data)
 	--watch for action packets
+	if mode == "off" then
+		return
+	end
+
 	if id == 0x028 then
 		--[[
 24557 16:28:5540 Packet:
@@ -98,10 +103,22 @@ end)
 
 windower.register_event('addon command', function(...)
 	local args = T{...}:map(string.lower)
-    	local cmd = args[1]
-    	args:remove(1)
-    	local argc = #args
-	--add command to toggle modes (watch all or watch list)
+	local cmd = args[1]
+	args:remove(1)
+	local argc = #args
+	if cmd == "mode" then
+		windower.add_to_chat(207,"scwatch mode: "..mode)
+	end
+	if T{"off","all","list"}:contains(cmd) then
+		mode = cmd
+		windower.add_to_chat(207,"scwatch mode changed to: "..mode)
+	end
+	if cmd == "watch" then
+		if ~watch_players:contains(args[1]) then
+			table.insert(watched_players,args[1])
+			windower.add_to_chat(207,"scwatch added: "..args[1])
+		end
+	end
 	--add command to watch specific player names
 	--add command to print watch list
 end)
