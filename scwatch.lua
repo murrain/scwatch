@@ -118,6 +118,16 @@ windower.register_event('addon command', function(...)
 	elseif T{"off","all","list"}:contains(cmd) then
 		mode = cmd
 		windower.add_to_chat(207,"scwatch mode changed to: "..mode)
+		if cmd == "list" and lists["watch"] then
+			for _,name in pairs(lists["watch"]) do
+				windower.add_to_chat(207,"scwatch watching: "..name)
+			end
+			if lists["ignore"] then
+				for _,name in pairs(lists["ignore"]) do
+					windower.add_to_chat(207,"scwatch ignoring: "..name)
+				end
+			end
+		end
 	elseif T{"watch","ignore"}:contains(cmd) then
 		if (args[1] and (not lists[cmd] or not lists[cmd]:contains(args[1])) ) then
 			table.insert(lists[cmd],args[1])
