@@ -132,10 +132,16 @@ windower.register_event('addon command', function(...)
 		if (args[1] and (not lists[cmd] or not lists[cmd]:contains(args[1]))) then
 			table.insert(lists[cmd], args[1])
 			windower.add_to_chat(207, "scwatch added: " .. args[1] .. " to " .. cmd .. " list.")
+		elseif (args[1] and lists[cmd] and lists[cmd]:contains(args[1])) then
+			for k,v in pairs(lists[cmd]) do
+				if v == args[1] then
+					lists[cmd][k] = nil
+					windower.add_to_chat(207, "scwatch removed: " .. args[1] .. " from " .. cmd .. " list.")
+				end
+			end
 		end
 	elseif T { "clear" }:contains(cmd) and T { "watch", "ignore" }:contains(args[1]) then
 		lists[args[1]] = T {}
 		windower.add_to_chat(207, "scwatch cleared table: " .. args[1])
 	end
-	--add command to print watch list
 end)
