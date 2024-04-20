@@ -15,7 +15,7 @@ res = require('resources')
 packets = require('packets')
 --config = require('config')
 
-local mode = "all"
+local mode = "all" --off, all, list
 local lists = {}
 local lists["watch"] = {}
 local lists["ignore"]  = {}
@@ -30,6 +30,11 @@ function is_in_party(id)
         if (type(v) == "table") then
             if (v.mob) then
                 if id == v.mob.id then
+					--if the name is not on the list OR the name is on the ignore list return false
+					--this kinda overloads the function to do two things
+					if (mode == "list" and ~lists["watch"]:contains(v.name)) or lists["ignore"]:contains(v.name) then
+						return false
+					end
 					return true
 				end
             end
