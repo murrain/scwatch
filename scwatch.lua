@@ -1,6 +1,6 @@
 --[[
 --	Watches action packets for a weaponskill finish
---	sends a chat message on receipt
+--	sends a chat message and plays a sound on receipt
 --
 --]]
 
@@ -16,7 +16,9 @@ packets = require('packets')
 --config = require('config')
 
 local mode = "all"
-local watched_players = T{}
+local lists = {}
+local lists["watch"] = {}
+local lists["ignore"]  = {}
 
 settings = {}
 settings.sound = "level_up.wav";
@@ -113,12 +115,11 @@ windower.register_event('addon command', function(...)
 		mode = cmd
 		windower.add_to_chat(207,"scwatch mode changed to: "..mode)
 	end
-	if cmd == "watch" then
-		if ~watch_players:contains(args[1]) then
-			table.insert(watched_players,args[1])
-			windower.add_to_chat(207,"scwatch added: "..args[1])
+	if cmd == T{"watch","ignore"} then
+		if ~lists[cmd]:contains(args[1]) then
+			table.insert(lists[cmd],args[1])
+			windower.add_to_chat(207,"scwatch added: "..args[1].."to "..cmd.." list.")
 		end
 	end
-	--add command to watch specific player names
 	--add command to print watch list
 end)
