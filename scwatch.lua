@@ -17,8 +17,8 @@ packets = require('packets')
 
 local mode = "all" --off, all, list
 local lists = {}
-lists["watch"] = {}
-lists["ignore"]  = {}
+lists["watch"] = T{}
+lists["ignore"]  = T{}
 
 settings = {}
 settings.sound = "level_up.wav";
@@ -32,9 +32,11 @@ function is_in_party(id)
                 if id == v.mob.id then
 					--if the name is not on the list OR the name is on the ignore list return false
 					--this kinda overloads the function to do two things
-					if (mode == "list" and not (lists["watch"]:contains(v.name))) or lists["ignore"]:contains(v.name) then
+					--need to check for both lists being nil
+					if (mode == "list" and lists["watch"] and not (lists["watch"]:contains(v.name:lower()))) or (lists["ignore"] and lists["ignore"]:contains(v.name)) then
 						return false
 					end
+
 					return true
 				end
             end
@@ -98,12 +100,10 @@ windower.register_event('incoming chunk',function(id,data)
 		--]]
 
 		--checks to ignore players not in your party or alliance
-		if (is_in_party(p.actor_id)) then
-			if p.category == 3 then
-				--need to add checks to ignore weapon bash
-				windower.add_to_chat(207,"Weaponskill FINISH")
-				windower.play_sound(windower.addon_path..'sounds/' .. settings.sound)
-			end
+		if p.category == 3  and is_in_party(p.actor_id) then
+			--need to add checks to ignore weapon bash
+			windower.add_to_chat(207,"Weaponskill FINISH")
+			windower.play_sound(windower.addon_path..'sounds/' .. settings.sound)
 		end
  	end
 end)
@@ -115,16 +115,17 @@ windower.register_event('addon command', function(...)
 	local argc = #args
 	if cmd == "mode" then
 		windower.add_to_chat(207,"scwatch mode: "..mode)
-	end
-	if T{"off","all","list"}:contains(cmd) then
+	elseif T{"off","all","list"}:contains(cmd) then
 		mode = cmd
 		windower.add_to_chat(207,"scwatch mode changed to: "..mode)
-	end
-	if cmd == T{"watch","ignore"} then
-		if not lists[cmd]:contains(args[1]) then
+	elseif T{"watch","ignore"}:contains(cmd) then
+		if (args[1] and (not lists[cmd] or not lists[cmd]:contains(args[1])) ) then
 			table.insert(lists[cmd],args[1])
-			windower.add_to_chat(207,"scwatch added: "..args[1].."to "..cmd.." list.")
+			windower.add_to_chat(207,"scwatch added: "..args[1].." to "..cmd.." list.")
 		end
+	elseif T{"clear"}:contains(cmd) and T{"watch","ignore"}:contains(args[1]) then
+		lists[args[1]] = T{}
+		windower.add_to_chat(207,"scwatch cleared table: "..args[1])
 	end
 	--add command to print watch list
 end)
