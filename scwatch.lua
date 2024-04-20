@@ -17,8 +17,8 @@ packets = require('packets')
 
 local mode = "all" --off, all, list
 local lists = {}
-local lists["watch"] = {}
-local lists["ignore"]  = {}
+lists["watch"] = {}
+lists["ignore"]  = {}
 
 settings = {}
 settings.sound = "level_up.wav";
@@ -32,7 +32,7 @@ function is_in_party(id)
                 if id == v.mob.id then
 					--if the name is not on the list OR the name is on the ignore list return false
 					--this kinda overloads the function to do two things
-					if (mode == "list" and ~lists["watch"]:contains(v.name)) or lists["ignore"]:contains(v.name) then
+					if (mode == "list" and not (lists["watch"]:contains(v.name))) or lists["ignore"]:contains(v.name) then
 						return false
 					end
 					return true
@@ -121,7 +121,7 @@ windower.register_event('addon command', function(...)
 		windower.add_to_chat(207,"scwatch mode changed to: "..mode)
 	end
 	if cmd == T{"watch","ignore"} then
-		if ~lists[cmd]:contains(args[1]) then
+		if not lists[cmd]:contains(args[1]) then
 			table.insert(lists[cmd],args[1])
 			windower.add_to_chat(207,"scwatch added: "..args[1].."to "..cmd.." list.")
 		end
