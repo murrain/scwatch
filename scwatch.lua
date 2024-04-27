@@ -94,6 +94,7 @@ windower.register_event('incoming chunk', function(id, data)
 24593 }
 		--]]
 		local p = windower.packets.parse_action(data)
+		local ws_id = p.targets[1].actions[1].param
 		--[[DEBUG
 			if T{3,7,8}:contains(p.category) then
 				windower.add_to_chat(207, id .. " Packet: \n"..T(p):tovstring())
@@ -101,9 +102,9 @@ windower.register_event('incoming chunk', function(id, data)
 		--]]
 
 		--checks to ignore players not in your party or alliance
-		if p.category == 3 and is_in_party(p.actor_id) then
-			--need to add checks to ignore weapon bash
-			windower.add_to_chat(207, lists["party"][p.actor_id] .. " Weaponskill FINISH")
+		if p.category == 3 and is_in_party(p.actor_id) and (res.weapon_skills[ws_id])then
+			--need to add checks to ignore weapon bash and jump
+			windower.add_to_chat(207, lists["party"][p.actor_id] .. " finished ".. res.weapon_skills[ws_id].en)
 			windower.play_sound(windower.addon_path .. 'sounds/' .. settings.sound)
 		end
 	end
